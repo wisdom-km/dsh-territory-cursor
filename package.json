@@ -1,0 +1,48 @@
+{
+  "name": "dsh-territory-cursor",
+  "version": "0.0.1",
+  "description": "地盘光标（dsh-territory-cursor）。DeepSeek Harness 桌面设置页。当前版本不移动系统鼠标，也不操作窗口。",
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/main.js",
+  "exports": {
+    ".": "./lib/main.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "docs"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "dsh",
+    "地盘光标",
+    "computer-use",
+    "windows"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wisdom-km/dsh-territory-cursor.git"
+  },
+  "homepage": "https://github.com/wisdom-km/dsh-territory-cursor#readme",
+  "engines": {
+    "node": ">=22",
+    "dsh": "*"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

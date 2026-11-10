@@ -4,6 +4,18 @@
 
 DeepSeek Harness 插件。给代理一块地盘和一颗只属于它的光标，不移动你的系统鼠标。
 
+## 当前版本
+
+0.0.1 只打开设置页「地盘光标」。不列出窗口，不点击，不移动系统鼠标。
+
+桌面配置安装：
+
+```powershell
+dsh plugin --profile desktop add github:wisdom-km/dsh-territory-cursor
+```
+
+装之前先完全退出 DeepSeek Harness 桌面版，包括托盘。npm 包名 `dsh-territory-cursor` 等记事本能点下去、并且系统鼠标停在原地之后再发。
+
 双屏时，你指定哪一块屏幕给它。单屏时，在这一块屏幕上画出一块地盘（默认右半边）。两种情况是同一套规则：地盘是一个矩形，插件只操作中心落在矩形里的窗口。
 
 ## 它保证什么
@@ -98,8 +110,8 @@ dsh plugin --profile desktop add .
 
 官方插件市场还在筹备，现在不能直接上架。能做的是进社区目录，并登记作者意向。
 
-1. 仓库公开，并打上 `dsh-plugin` 话题。社区目录靠这个话题收录。
+1. 仓库公开，并打上 `dsh-plugin` 话题。社区目录靠这个话题收录。可安装还要有 `package.json` 里的 `dsh.bundle` 和旁边的 `cordis.patch.yml`。收录条目交到 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) 的 `data/plugins/`，描述只写当前代码真的会做的事。
 2. 在 [DeepSeek Harness 的 Show Your Plugins 讨论区](https://github.com/deepseek-ai/deepseek-harness/discussions/categories/show-your-plugins)发一帖：一块屏幕画出地盘，两块屏幕由人指定一块，光标不移动系统鼠标。附上仓库地址。
 3. 作者扶持是一张意向表，想法阶段就可以填：<https://trtgsjkv6r.feishu.cn/share/base/form/shrcnkRrxNyri4bOF9n48BIYWbb>。名称写「地盘光标 / dsh-territory-cursor」，阶段写「已有想法，尚未开始」。
 
-插件能在记事本上点下去、并且你的鼠标停在原地之后，再发 npm，安装命令才会成立。在那之前只发仓库和讨论帖。
+插件能在记事本上点下去、并且你的鼠标停在原地之后，再发 npm。在那之前，应用内安装走上面的 GitHub 地址。讨论帖可以先发。
