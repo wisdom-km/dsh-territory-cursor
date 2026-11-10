@@ -194,6 +194,12 @@ static class Overlay
         return true;
     }
 
+    static Font LabelFont()
+    {
+        try { return new Font("Microsoft YaHei UI", 14); }
+        catch (ArgumentException) { return new Font(FontFamily.GenericSansSerif, 14); }
+    }
+
     static bool HitDivider(int x, int y)
     {
         if (side == "display") return false;
@@ -223,7 +229,7 @@ static class Overlay
                         {
                             using (var pen = new Pen(Color.FromArgb(255, 186, 214, 236), 3))
                                 g.DrawRectangle(pen, 2, 2, Math.Max(1, territory.Width - 5), Math.Max(1, territory.Height - 5));
-                            using (var font = new Font(FontFamily.GenericSansSerif, 14))
+                            using (var font = LabelFont())
                             using (var brush = new SolidBrush(Color.FromArgb(255, 186, 214, 236)))
                                 g.DrawString(label, font, brush, 12, 8);
                         }

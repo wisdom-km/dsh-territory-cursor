@@ -6,7 +6,7 @@ import { createGate, keyDown, keyUp, phase, pointerDown, pointerMove, pointerUp,
 import { clampFraction, fractionFromPointer, pointInTerritory, splitRect } from '../lib/core/geometry.js'
 import { settingsView } from '../lib/core/settings-view.js'
 import { resolveTerritory, suggestedDevice } from '../lib/core/territory.js'
-import { windowsInside } from '../lib/core/windows.js'
+import { controlsInside, windowsInside } from '../lib/core/windows.js'
 
 const screen = { device: '\\\\.\\DISPLAY1', x: 0, y: 0, width: 2560, height: 1440 }
 const right = { kind: 'split', side: 'right', rect: splitRect(screen, 'right', 0.5) }
@@ -127,6 +127,15 @@ test('only a window whose center is inside is listed', () => {
   assert.deepEqual(rows.map(row => row.hwnd), ['1'])
 })
 
+test('a control is listed only when its center is inside', () => {
+  const nodes = controlsInside([
+    { rid: 'in', name: '确定', x: 1800, y: 400, width: 80, height: 30 },
+    { rid: 'line', name: '分界', x: 1240, y: 400, width: 80, height: 30 },
+    { rid: 'out', name: '左', x: 100, y: 400, width: 80, height: 30 },
+  ], right)
+  assert.deepEqual(nodes.map(node => node.rid), ['in'])
+})
+
 test('a covered window is marked and cannot take a posted click', () => {
   const rows = windowsInside([
     { hwnd: 'front', title: '前', className: 'Notepad', processName: 'notepad.exe', x: 1400, y: 100, width: 800, height: 800 },
@@ -145,6 +154,8 @@ test('password, browser, and a jumped control are refused', () => {
   assert.equal(planClick(button, win, right).kind, 'post')
   assert.match(planClick({ ...button, password: true }, win, right).reason, /密码框/)
   assert.match(planClick(button, { ...win, processName: 'chrome.exe' }, right).reason, /不能调用/)
+  assert.match(planClick({ ...button, className: 'Chrome_WidgetWin_1' }, win, right).reason, /不能调用/)
+  assert.match(planClick({ ...button, center: { x: 10, y: 10 } }, win, right).reason, /不在地盘里/)
   assert.match(planType({ ...button, patterns: [] }, 'hi', right).reason, /不能整段赋值/)
   assert.equal(planType({ ...button, patterns: ['value'] }, '', right).value, '')
   assert.equal(movedSignificantly({ x: 0, y: 0 }, { x: CENTER_MOVE_PX + 1, y: 0 }), true)

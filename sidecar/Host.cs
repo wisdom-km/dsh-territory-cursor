@@ -36,7 +36,7 @@ static class Host
             if (json == null)
             {
                 json = new JavaScriptSerializer();
-                json.MaxJsonLength = 20000000;
+                json.MaxJsonLength = 67108864;
             }
             return json;
         }
@@ -176,7 +176,7 @@ static class Host
             if (cmd == "quit") { running = false; Reply(id, true, null); return; }
             if (cmd == "screens") { Reply(id, true, new Dictionary<string, object> { { "screens", Screens() } }); return; }
             if (cmd == "windows") { Reply(id, true, new Dictionary<string, object> { { "windows", Windows() } }); return; }
-            if (cmd == "tree") { Reply(id, true, new Dictionary<string, object> { { "nodes", Tree(Str(msg, "hwnd")) } }); return; }
+            if (cmd == "tree") { Reply(id, true, new Dictionary<string, object> { { "nodes", Tree(Str(msg, "hwnd"), msg) } }); return; }
             if (cmd == "invoke" || cmd == "selection" || cmd == "toggle" || cmd == "setvalue")
             {
                 var error = Act(cmd, Str(msg, "hwnd"), Str(msg, "rid"), Str(msg, "value"));
@@ -193,6 +193,31 @@ static class Host
             if (cmd == "shot")
             {
                 Reply(id, true, new Dictionary<string, object> { { "png", Shot(IntOf(msg, "x"), IntOf(msg, "y"), IntOf(msg, "width"), IntOf(msg, "height")) } });
+                return;
+            }
+            if (cmd == "desktop-stop") { DesktopInput.RequestStop(); Reply(id, true, null); return; }
+            if (cmd == "desktop")
+            {
+                var copy = new Dictionary<string, object>(msg);
+                int requestId = id;
+                int stamp = DesktopInput.Stamp();
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    Dictionary<string, object> extra;
+                    bool ok = true;
+                    try
+                    {
+                        extra = DesktopInput.Run(copy, stamp);
+                        object flag;
+                        if (extra != null && extra.TryGetValue("ok", out flag) && flag is bool) ok = (bool)flag;
+                    }
+                    catch (Exception ex)
+                    {
+                        ok = false;
+                        extra = new Dictionary<string, object> { { "error", ex.Message } };
+                    }
+                    Reply(requestId, ok, extra);
+                });
                 return;
             }
             Reply(id, false, new Dictionary<string, object> { { "error", "unknown" } });
@@ -296,23 +321,44 @@ static class Host
         finally { CloseHandle(handle); }
     }
 
-    static List<object> Tree(string hwndText)
+    static List<object> Tree(string hwndText, Dictionary<string, object> clip)
     {
         var nodes = new List<object>();
         var root = AutomationElement.FromHandle(Hwnd(hwndText));
         if (root == null) return nodes;
         var walker = TreeWalker.ControlViewWalker;
-        Walk(root, walker, nodes, 0);
+        Walk(root, walker, nodes, 0, clip);
         return nodes;
     }
 
-    static void Walk(AutomationElement element, TreeWalker walker, List<object> nodes, int depth)
+    // Same edges as pointInTerritory in lib/core/geometry.js. The divider line stays outside.
+    static bool InsideClip(Dictionary<string, object> clip, int px, int py)
+    {
+        int width = IntOf(clip, "width");
+        int height = IntOf(clip, "height");
+        if (width <= 0 || height <= 0) return true;
+        int x = IntOf(clip, "x");
+        int y = IntOf(clip, "y");
+        int right = x + width;
+        int bottom = y + height;
+        var kind = Str(clip, "kind");
+        var side = Str(clip, "side");
+        if (kind == "display") return px >= x && px < right && py >= y && py < bottom;
+        if (side == "right") return px > x && px <= right && py >= y && py < bottom;
+        if (side == "left") return px >= x && px < right && py >= y && py < bottom;
+        if (side == "bottom") return py > y && py <= bottom && px >= x && px < right;
+        return py >= y && py < bottom && px >= x && px < right;
+    }
+
+    static void Walk(AutomationElement element, TreeWalker walker, List<object> nodes, int depth, Dictionary<string, object> clip)
     {
         if (element == null || depth > 12 || nodes.Count >= 80) return;
         try
         {
             var rect = element.Current.BoundingRectangle;
-            if (rect.Width >= 1 && rect.Height >= 1)
+            int cx = (int)(rect.X + rect.Width / 2);
+            int cy = (int)(rect.Y + rect.Height / 2);
+            if (rect.Width >= 1 && rect.Height >= 1 && InsideClip(clip, cx, cy))
             {
                 var row = new Dictionary<string, object>();
                 row["rid"] = RuntimeId(element);
@@ -342,7 +388,7 @@ static class Host
         catch (ElementNotAvailableException) { return; }
         while (child != null && nodes.Count < 80)
         {
-            Walk(child, walker, nodes, depth + 1);
+            Walk(child, walker, nodes, depth + 1, clip);
             try { child = walker.GetNextSibling(child); }
             catch (ElementNotAvailableException) { break; }
         }
@@ -508,6 +554,7 @@ static class Host
                 bool alt = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
                 if (!up && info.vk == VK_OEM_PERIOD && ctrl && alt)
                 {
+                    DesktopInput.RequestStop();
                     QueueEvent(new Dictionary<string, object> { { "event", "stop" } });
                     return (IntPtr)1;
                 }
