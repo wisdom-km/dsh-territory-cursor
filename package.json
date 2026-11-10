@@ -1,7 +1,7 @@
 {
   "name": "dsh-territory-cursor",
-  "version": "0.0.1",
-  "description": "地盘光标（dsh-territory-cursor）。DeepSeek Harness 桌面设置页。当前版本不移动系统鼠标，也不操作窗口。",
+  "version": "0.1.0",
+  "description": "地盘光标（dsh-territory-cursor）。在一块屏幕或单屏的半边里列出窗口、截图，并对控件做左键或整段赋值。不移动系统鼠标。",
   "license": "MIT",
   "type": "module",
   "main": "./lib/main.js",
@@ -12,6 +12,8 @@
   },
   "files": [
     "lib",
+    "sidecar",
+    "overlay",
     "cordis.patch.yml",
     "README.md",
     "LICENSE",

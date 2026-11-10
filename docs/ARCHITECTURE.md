@@ -4,11 +4,12 @@
 
 核心文件不引用旁车、光标窗口、Harness 或 React。这条由 `npm test` 里的结构测试卡住。
 
-第 1 步只有未确认状态和设置页。屏幕、窗口、点击、光标留在后面的步骤，再放到端口后面。
+`lib/session.js` 是组装。它读核心的裁决，再叫 `lib/ports/sidecar.js`。点击走控件自己的调用，或者把按下和抬起发给那个窗口。系统光标留在原地。
 
-| 以后的位置 | 放什么 |
+| 位置 | 放什么 |
 | --- | --- |
-| `lib/ports` | 屏幕、窗口树、控件、时钟、键鼠监视 |
-| `sidecar` | C# 旁车 |
+| `lib/core` | 地盘、暂停、停止、窗口过滤、一次动作 |
+| `lib/ports/sidecar.js` | 拉起旁车 |
+| `sidecar` | C#：屏幕、窗口、控件、截图、键鼠监视 |
 | `overlay` | 假光标和边框 |
-| `lib/dsh` | 两个工具 |
+| `lib/tools.js` | `territory_snapshot` 和 `territory_act` |
