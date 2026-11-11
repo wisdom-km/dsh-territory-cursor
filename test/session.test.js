@@ -136,6 +136,39 @@ function desktopReply(body) {
   }
 }
 
+test('desktop_click sends one pointed click and refuses a missing point', async () => {
+  const script = { bodies: [] }
+  const launch = async () => ({
+    async request(body) {
+      script.bodies.push(body)
+      if (body.cmd === 'screens') return { ok: true, screens: [screen] }
+      if (body.cmd === 'desktop') {
+        return {
+          ...desktopReply(body),
+          actions: [{ kind: 'click' }],
+          cursor: { x: body.actions[0].x, y: body.actions[0].y },
+        }
+      }
+      return { ok: true }
+    },
+    async stop() {},
+  })
+  const session = startSession({}, config(), { launch })
+  const missing = await session.desktopClick({ x: 3 })
+  assert.match(missing.text, /y/)
+  assert.equal(script.bodies.some(body => body.cmd === 'desktop'), false)
+  const shot = await session.desktopClick({ x: 12, y: 34 })
+  assert.equal(shot.ok, true)
+  const desktop = script.bodies.find(body => body.cmd === 'desktop')
+  assert.equal(desktop.actions.length, 1)
+  assert.equal(desktop.actions[0].kind, 'click')
+  assert.equal(desktop.actions[0].hasPoint, true)
+  assert.equal(desktop.actions[0].x, 12)
+  assert.equal(desktop.actions[0].y, 34)
+  assert.match(shot.text, /这一步移动了系统鼠标/)
+  await session.stop()
+})
+
 test('desktop_step does not need a confirmed territory', async () => {
   const script = { calls: [] }
   const launch = async () => ({

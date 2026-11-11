@@ -17,4 +17,4 @@
 | `sidecar/Host.cs` | 屏幕、窗口、控件、截图、键鼠监视、派发 desktop 命令 |
 | `sidecar/DesktopInput.cs` | 系统鼠标的一步：SetCursorPos 和 SendInput |
 | `overlay` | 假光标和边框 |
-| `lib/tools.js` | `territory_snapshot`、`territory_act`、`desktop_step`、`get_screen_metrics` |
+| `lib/tools.js` | `territory_snapshot`、`territory_act`、`desktop_step`、`desktop_click`、`get_screen_metrics` |

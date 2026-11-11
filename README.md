@@ -10,7 +10,7 @@ DeepSeek Harness 插件。给代理一块地盘和一颗只属于它的光标。
 
 确认之后，地盘里有两个工具：`territory_snapshot` 列出中心在地盘里的窗口并截下这块矩形；`territory_act` 对一个 ref 做一次左键，或把控件的值整段换掉。这两个工具不移动系统鼠标，不注入键盘。滚动、拖拽、右键、双击都不做。点不了就说明点不了，不改走 `desktop_step`。
 
-另外两个工具不看地盘有没有确认：`get_screen_metrics` 只读虚拟桌面；`desktop_step` 对整块虚拟桌面做一步真实的鼠标和键盘操作。动作集合、监视区阈值、静置和画面记号跟 dsh-desktop-tools-plugin 0.4.0 相同，出处写在 `NOTICE`。调用前要先问你，结束后要告诉你。同一批最多 20 个动作，监视区最多 4 块。文字用 `SendInput` 的 Unicode 输入，不碰剪贴板。
+另外三个工具不看地盘有没有确认：`get_screen_metrics` 只读虚拟桌面；`desktop_click` 用真实系统鼠标点击一个坐标；`desktop_step` 看画面，或对已经聚焦的输入框做真实键盘输入。点图标、按钮和任务栏用 `desktop_click`，不要用按键代替。动作集合、监视区阈值、静置和画面记号跟 dsh-desktop-tools-plugin 0.4.0 相同，出处写在 `NOTICE`。调用前要先问你，结束后要告诉你。同一批最多 20 个动作，监视区最多 4 块。文字用 `SendInput` 的 Unicode 输入，不碰剪贴板。
 
 这份 `desktop_step` 写在本仓库里，由咱们维护。`package.json` 不依赖 dsh-desktop-tools-plugin。对方停更、下架，或从本机卸掉，这个工具还在。`NOTICE` 只留下 MIT 要求的版权声明，运行时不会去加载那个包。
 

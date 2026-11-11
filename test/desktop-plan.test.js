@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { formatStepReport, planDesktopStep } from '../lib/core/desktop-plan.js'
+import { formatStepReport, planDesktopClick, planDesktopStep } from '../lib/core/desktop-plan.js'
 
 const screen = { x: 0, y: 0, width: 2560, height: 1440 }
 
@@ -115,6 +115,21 @@ test('a missed cursor landing names the target and the actual point', () => {
   }, { watchCount: 0, timeoutMs: 0, annotate: false, grid: false })
   assert.match(text, /光标没有落到 \(10, 20\)，实际在 \(1976, 1021\)/)
   assert.match(text, /这一步没有移动系统鼠标/)
+})
+
+test('a desktop click requires both coordinates', () => {
+  const missing = planDesktopClick({ x: 10 })
+  assert.equal(missing.ok, false)
+  assert.match(missing.error, /y/)
+  const planned = planDesktopClick({ x: 12, y: 34, button: 'right', count: 2 })
+  assert.equal(planned.ok, true)
+  assert.equal(planned.body.actions.length, 1)
+  assert.equal(planned.body.actions[0].kind, 'click')
+  assert.equal(planned.body.actions[0].hasPoint, true)
+  assert.equal(planned.body.actions[0].x, 12)
+  assert.equal(planned.body.actions[0].y, 34)
+  assert.equal(planned.body.actions[0].rightButton, true)
+  assert.equal(planned.body.actions[0].count, 2)
 })
 
 test('a flat watch row still names the rectangle', () => {

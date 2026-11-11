@@ -29,6 +29,7 @@ test('the host entry names the territory tools and the desktop step', async () =
   assert.match(tools, /territory_snapshot/)
   assert.match(tools, /territory_act/)
   assert.match(tools, /desktop_step/)
+  assert.match(tools, /desktop_click/)
   assert.match(tools, /get_screen_metrics/)
   assert.doesNotMatch(tools, /territory_launch/)
 })
