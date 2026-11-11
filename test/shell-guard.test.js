@@ -15,6 +15,7 @@ test('the desktop step borrows SendInput only inside DesktopInput', async () => 
   const notice = await readFile(new URL('../NOTICE', import.meta.url), 'utf8')
   assert.match(desktop, /SetCursorPos/)
   assert.match(desktop, /SendInput/)
+  assert.match(desktop, /cursor did not land on/)
   assert.match(desktop, /EvilOfRed/)
   assert.match(notice, /EvilOfRed/)
   assert.match(notice, /dsh-desktop-tools-plugin 0\.4\.0/)

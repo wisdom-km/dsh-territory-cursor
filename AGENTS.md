@@ -8,6 +8,6 @@
 
 `territory_snapshot` 和 `territory_act` 不移动系统光标。点击走控件调用，或把按下和抬起发给目标窗口。
 
-`desktop_step` 和 `get_screen_metrics` 的代码在本仓库，借用 dsh-desktop-tools-plugin 0.4.0 的思路（EvilOfRed，MIT，见 `NOTICE`）。不要加对那个包的运行时依赖。`desktop_step` 用系统鼠标操作整块虚拟桌面。调用前先问用户，结束后告诉用户。
+`desktop_step` 和 `get_screen_metrics` 的代码在本仓库，借用 dsh-desktop-tools-plugin 0.4.0 的思路（EvilOfRed，MIT，见 `NOTICE`）。不要加对那个包的运行时依赖。`desktop_step` 用系统鼠标和系统键盘操作整块虚拟桌面。用户要点看得见的东西时发 `click` 并带坐标，光标落到目标才按下。用户要打字时发 `text`。不要用按键代替一次看得见的点击。调用前先问用户，结束后告诉用户。
 
 两个插件同时启用会注册重复的工具名。只留一个启用。

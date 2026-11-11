@@ -18,7 +18,8 @@ test('an empty action list is a look', () => {
     settledMs: 100,
   }, { watchCount: 0, timeoutMs: plan.body.timeoutMs, annotate: true, grid: false })
   assert.match(text, /只看了一眼/)
-  assert.match(text, /移动了系统鼠标/)
+  assert.match(text, /这一步没有移动系统鼠标/)
+  assert.doesNotMatch(text, /这一步移动了系统鼠标/)
   assert.match(text, /EvilOfRed/)
 })
 
@@ -49,6 +50,71 @@ test('more than four watch rects is refused before a step', () => {
   const plan = planDesktopStep({ watch })
   assert.equal(plan.ok, false)
   assert.match(plan.error, /最多 4/)
+})
+
+test('a key-only step does not say the mouse moved', () => {
+  const plan = planDesktopStep({ actions: [{ kind: 'key', key: 'ctrl+esc' }, { kind: 'text', text: 'Obsidian' }] })
+  const text = formatStepReport(plan.planned, {
+    actions: [{ kind: 'key' }, { kind: 'text' }],
+    capture: screen,
+    cursor: { x: 1976, y: 1021 },
+    foreground: '搜索',
+    settledMs: 100,
+  }, { watchCount: 0, timeoutMs: plan.body.timeoutMs, annotate: true, grid: false })
+  assert.match(text, /这一步没有移动系统鼠标/)
+  assert.doesNotMatch(text, /这一步移动了系统鼠标/)
+})
+
+test('a click on a point says the mouse moved', () => {
+  const plan = planDesktopStep({ actions: [{ kind: 'click', x: 10, y: 20 }] })
+  const text = formatStepReport(plan.planned, {
+    actions: [{ kind: 'click' }],
+    capture: screen,
+    cursor: { x: 10, y: 20 },
+    foreground: '记事本',
+    settledMs: 100,
+  }, { watchCount: 0, timeoutMs: 2000, annotate: false, grid: false })
+  assert.match(text, /这一步移动了系统鼠标/)
+})
+
+test('a click at the current cursor does not say the cursor moved', () => {
+  const plan = planDesktopStep({ actions: [{ kind: 'click' }] })
+  const text = formatStepReport(plan.planned, {
+    actions: [{ kind: 'click' }],
+    capture: screen,
+    cursor: { x: 3, y: 4 },
+    foreground: '记事本',
+    settledMs: 100,
+  }, { watchCount: 0, timeoutMs: 2000, annotate: false, grid: false })
+  assert.match(text, /没有移动光标，但使用了系统鼠标/)
+  assert.doesNotMatch(text, /这一步移动了系统鼠标/)
+})
+
+test('a click that never ran is not called a mouse move', () => {
+  const plan = planDesktopStep({ actions: [{ kind: 'key', key: 'enter' }, { kind: 'click', x: 1, y: 2 }] })
+  const text = formatStepReport(plan.planned, {
+    actions: [{ kind: 'key' }],
+    failedAction: { index: 1, kind: 'click', message: 'stopped' },
+    capture: screen,
+    cursor: { x: 1, y: 1 },
+    foreground: '记事本',
+    settledMs: 0,
+  }, { watchCount: 0, timeoutMs: 0, annotate: false, grid: false })
+  assert.match(text, /这一步没有移动系统鼠标/)
+})
+
+test('a missed cursor landing names the target and the actual point', () => {
+  const plan = planDesktopStep({ actions: [{ kind: 'click', x: 10, y: 20 }] })
+  const text = formatStepReport(plan.planned, {
+    actions: [],
+    failedAction: { index: 0, kind: 'click', message: 'cursor did not land on 10 20 actual 1976 1021' },
+    capture: screen,
+    cursor: { x: 1976, y: 1021 },
+    foreground: '记事本',
+    settledMs: 0,
+  }, { watchCount: 0, timeoutMs: 0, annotate: false, grid: false })
+  assert.match(text, /光标没有落到 \(10, 20\)，实际在 \(1976, 1021\)/)
+  assert.match(text, /这一步没有移动系统鼠标/)
 })
 
 test('a flat watch row still names the rectangle', () => {

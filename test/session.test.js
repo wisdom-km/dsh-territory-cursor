@@ -151,6 +151,7 @@ test('desktop_step does not need a confirmed territory', async () => {
   const shot = await session.desktopStep({})
   assert.equal(shot.ok, true)
   assert.match(shot.text, /只看了一眼/)
+  assert.match(shot.text, /这一步没有移动系统鼠标/)
   assert.match(shot.text, /EvilOfRed/)
   assert.equal(script.calls.includes('desktop'), true)
   assert.equal(script.calls.includes('windows'), false)

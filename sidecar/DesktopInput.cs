@@ -365,19 +365,30 @@ static class DesktopInput
         {
             if (!SetCursorPos(x, y)) throw new InvalidOperationException("SetCursorPos failed");
             Thread.Sleep(25);
-            return;
         }
-        POINT start = Cursor();
-        if (steps > 240) steps = 240;
-        int per = Math.Max(1, durationMs / steps);
-        for (int i = 1; i <= steps; i++)
+        else
         {
-            if (Stopped(stamp)) throw new InvalidOperationException("stopped");
-            int px = (int)Math.Round(start.X + ((double)(x - start.X) / steps) * i);
-            int py = (int)Math.Round(start.Y + ((double)(y - start.Y) / steps) * i);
-            if (!SetCursorPos(px, py)) throw new InvalidOperationException("SetCursorPos failed");
-            if (i < steps) Thread.Sleep(per);
+            POINT start = Cursor();
+            if (steps > 240) steps = 240;
+            int per = Math.Max(1, durationMs / steps);
+            for (int i = 1; i <= steps; i++)
+            {
+                if (Stopped(stamp)) throw new InvalidOperationException("stopped");
+                int px = (int)Math.Round(start.X + ((double)(x - start.X) / steps) * i);
+                int py = (int)Math.Round(start.Y + ((double)(y - start.Y) / steps) * i);
+                if (!SetCursorPos(px, py)) throw new InvalidOperationException("SetCursorPos failed");
+                if (i < steps) Thread.Sleep(per);
+            }
+            Thread.Sleep(25);
         }
+        // SetCursorPos can report success while the cursor stays put. Do not click that spot.
+        POINT now = Cursor();
+        if (Math.Abs(now.X - x) <= 3 && Math.Abs(now.Y - y) <= 3) return;
+        if (!SetCursorPos(x, y)) throw new InvalidOperationException("SetCursorPos failed");
+        Thread.Sleep(25);
+        now = Cursor();
+        if (Math.Abs(now.X - x) > 3 || Math.Abs(now.Y - y) > 3)
+            throw new InvalidOperationException("cursor did not land on " + x + " " + y + " actual " + now.X + " " + now.Y);
     }
 
     static void Click(bool right)
