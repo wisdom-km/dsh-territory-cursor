@@ -1,7 +1,7 @@
 {
   "name": "dsh-territory-cursor",
   "version": "0.1.0",
-  "description": "地盘光标（dsh-territory-cursor）。地盘内列出窗口、截图，并对控件做左键或整段赋值，不移动系统鼠标。desktop_step 借用 dsh-desktop-tools-plugin，用系统鼠标操作整块虚拟桌面。",
+  "description": "地盘光标（dsh-territory-cursor）。地盘内列出窗口、截图，并对控件做左键或整段赋值，不移动系统鼠标。本仓库自带 desktop_step，用系统鼠标操作整块虚拟桌面。思路借鉴 dsh-desktop-tools-plugin（EvilOfRed，MIT）。",
   "license": "MIT",
   "type": "module",
   "main": "./lib/main.js",

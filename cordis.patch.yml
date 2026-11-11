@@ -1,6 +1,5 @@
 # Mounts the territory cursor on the desktop profile.
 # The row name is the package name so Node resolves the installed copy.
-# Step 1 only opens the settings page. It does not list windows or click.
 
 - insert:
     - id: territory-cursor
